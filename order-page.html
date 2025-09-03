@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单记录 - 英伟达显卡专卖店</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#76B900', // 英伟达绿色
+                        secondary: '#1A1A1A',
+                        accent: '#FF7043',
+                        neutral: '#F5F5F5',
+                    },
+                    fontFamily: {
+                        sans: ['SimHei', 'WenQuanYi Micro Hei', 'Heiti TC', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: 'SimHei', 'WenQuanYi Micro Hei', 'Heiti TC', sans-serif !important;
+            }
+        }
+        
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+            }
+            .btn-outline {
+                @apply border border-primary text-primary hover:bg-primary/10 font-semibold py-2 px-6 rounded-lg transition-all duration-300;
+            }
+            .table-hover {
+                @apply hover:bg-gray-50 transition-colors;
+            }
+            .badge-status {
+                @apply px-2 py-1 text-xs font-medium rounded-full;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-3xl text-primary"></i>
+                <h1 class="text-2xl font-bold text-secondary">NVIDIA<span class="text-primary">显卡专卖</span></h1>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="nvidia-shop.html#products" class="font-medium hover:text-primary transition-colors">显卡产品</a>
+                <a href="nvidia-shop.html#featured" class="font-medium hover:text-primary transition-colors">精选推荐</a>
+                <a href="nvidia-shop.html#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
+                <a href="nvidia-shop.html#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+                <a href="order-page.html" class="font-medium text-primary border-b-2 border-primary pb-1">订单记录</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 hover:text-primary transition-colors" id="cartBtn">
+                    <i class="fa fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" id="cartCount">0</span>
+                </button>
+                <button class="hidden md:block p-2 hover:text-primary transition-colors">
+                    <i class="fa fa-user text-xl"></i>
+                </button>
+                <button class="md:hidden p-2 hover:text-primary transition-colors">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 订单页面内容 -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- 页面标题 -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-2">订单中心</h2>
+                <p class="text-gray-600">管理您的购买和售卖订单</p>
+            </div>
+
+            <!-- 视图切换选项卡 -->
+            <div class="flex border-b mb-8">
+                <button id="buyerTab" class="py-2 px-6 font-medium text-primary border-b-2 border-primary">购买订单</button>
+                <button id="sellerTab" class="py-2 px-6 font-medium text-gray-500 hover:text-gray-700">售卖订单</button>
+            </div>
+
+            <!-- 订单筛选 -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-8">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索订单号" class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <div class="relative">
+                            <select id="orderStatusFilter" class="appearance-none pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white cursor-pointer">
+                                <option>全部订单</option>
+                                <option>待付款</option>
+                                <option>待发货</option>
+                                <option>待收货</option>
+                                <option>已完成</option>
+                                <option>已取消</option>
+                                <option>已出售</option>
+                            </select>
+                            <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button class="btn-outline py-1 px-4 text-sm">批量操作</button>
+                        <button class="btn-primary py-1 px-4 text-sm">导出订单</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单列表 -->
+            <div id="buyerOrdersContainer" class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded">
+                                    </div>
+                                </th>
+                                <th class="py-3 px-6 text-left">订单号</th>
+                                <th class="py-3 px-6 text-left">订单商品</th>
+                                <th class="py-3 px-6 text-left">订单金额</th>
+                                <th class="py-3 px-6 text-left">下单时间</th>
+                                <th class="py-3 px-6 text-left">订单状态</th>
+                                <th class="py-3 px-6 text-left">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buyerOrderList" class="text-gray-600 text-sm">
+                            <!-- 购买订单记录将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 卖家订单列表 (默认隐藏) -->
+            <div id="sellerOrdersContainer" class="bg-white rounded-lg shadow-sm overflow-hidden mb-8 hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded">
+                                    </div>
+                                </th>
+                                <th class="py-3 px-6 text-left">订单号</th>
+                                <th class="py-3 px-6 text-left">商品信息</th>
+                                <th class="py-3 px-6 text-left">买家信息</th>
+                                <th class="py-3 px-6 text-left">订单金额</th>
+                                <th class="py-3 px-6 text-left">下单时间</th>
+                                <th class="py-3 px-6 text-left">订单状态</th>
+                                <th class="py-3 px-6 text-left">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellerOrderList" class="text-gray-600 text-sm">
+                            <!-- 售卖订单记录将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    共 <span id="totalOrders" class="font-medium">1</span> 个订单
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa fa-chevron-left text-xs"></i>
+                    </button>
+                    <button class="px-4 py-1 border rounded bg-primary text-white">1</button>
+                    <button class="px-3 py-1 border rounded hover:bg-gray-50">
+                        <i class="fa fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 订单详情模态框 -->
+    <div id="orderDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="text-2xl font-bold">订单详情</h3>
+                <button id="closeDetailModal" class="text-gray-500 hover:text-gray-800">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- 订单基本信息 -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold mb-4">订单信息</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500">订单编号</p>
+                            <p id="detailOrderId" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">下单时间</p>
+                            <p id="detailOrderTime"></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">订单状态</p>
+                            <p id="detailOrderStatus" class="font-medium text-green-500"></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">支付方式</p>
+                            <p>支付宝</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 收货信息 -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold mb-4">收货信息</h4>
+                    <div class="border p-4 rounded-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center">
+                                <span class="font-medium mr-3">张三</span>
+                                <span>13800138000</span>
+                            </div>
+                        </div>
+                        <p>北京市海淀区中关村南大街5号 科技大厦 12层 1201室</p>
+                    </div>
+                </div>
+                
+                <!-- 商品清单 -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold mb-4">商品清单</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">商品图片</th>
+                                    <th class="py-3 px-4 text-left">商品名称</th>
+                                    <th class="py-3 px-4 text-left">单价</th>
+                                    <th class="py-3 px-4 text-left">数量</th>
+                                    <th class="py-3 px-4 text-left">小计</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailOrderItems">
+                                <!-- 订单商品详情将通过JS动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 金额信息 -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-8">
+                    <div class="flex justify-between py-2">
+                        <span>商品金额</span>
+                        <span id="detailSubtotal">¥0</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span>运费</span>
+                        <span>¥0</span>
+                    </div>
+                    <div class="flex justify-between py-2 text-lg font-bold">
+                        <span>实付款</span>
+                        <span class="text-primary" id="detailTotal">¥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="order-page.js"></script>
+</body>
+</html>
