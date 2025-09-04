@@ -127,53 +127,55 @@ function initFilterFunctionality() {
 function generateBuyerOrderData() {
     const orders = [];
     
-    // 生成20个已完成的订单
+    // 定义日期范围：2025-2-20 到 2025-5-10
+    const startDate = new Date(2025, 1, 20); // 月份是从0开始的，所以2月是1
+    const endDate = new Date(2025, 4, 10); // 5月是4
+    
+    // 显卡型号和价格列表
+    const gpuModels = [
+        'NVIDIA GeForce RTX 5090 24GB GDDR7',
+        'NVIDIA GeForce RTX 4090 24GB GDDR6X',
+        'NVIDIA GeForce RTX 4080 16GB GDDR6X',
+        'NVIDIA GeForce RTX 4070 Ti 12GB GDDR6X',
+        'NVIDIA GeForce RTX 4070 12GB GDDR6X'
+    ];
+    
+    const gpuPrices = [12999, 9999, 8999, 6499, 5999];
+    
+    // 订单状态设置为仅'已完成'
+    const status = '已完成';
+    
+    // 生成20个订单
     for (let i = 0; i < 20; i++) {
-        const orderDate = new Date();
-        orderDate.setDate(orderDate.getDate() - Math.floor(Math.random() * 30));
+        // 生成随机日期在指定范围内
+        const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+        const orderDate = new Date(randomTime);
+        
+        // 随机选择显卡型号和价格
+        const modelIndex = Math.floor(Math.random() * gpuModels.length);
+        const price = gpuPrices[modelIndex];
         
         orders.push({
-            id: 'ORD' + Date.now().toString().slice(-8) + i.toString().padStart(2, '0'),
+            id: 'ORD' + (Date.now() + i).toString().slice(-8) + i.toString().padStart(2, '0'),
             time: formatDate(orderDate),
-            status: '已完成',
-            items: [{
-                id: 'RTX5090' + i,
-                name: 'NVIDIA GeForce RTX 5090 24GB GDDR7',
-                image: 'https://placehold.co/80x80/e2e8f0/475569?text=RTX+5090',
-                price: 12999,
-                quantity: 1
-            }],
-            total: 12999,
+            status: status, // 所有订单状态都设为已完成
+            items: [
+                {
+                    id: gpuModels[modelIndex].split(' ')[2] + i,
+                    name: gpuModels[modelIndex],
+                    image: `https://placehold.co/80x80/e2e8f0/475569?text=${gpuModels[modelIndex].split(' ')[2]}`,
+                    price: price,
+                    quantity: Math.floor(Math.random() * 3) + 1 // 1-3个
+                }
+            ],
+            total: price * (Math.floor(Math.random() * 3) + 1),
             address: {
-                name: '张三',
-                phone: '13800138000',
-                address: '北京市海淀区中关村南大街5号 科技大厦 12层 1201室'
+                name: '吴*斌',
+                phone: '15759890802',
+                address: '福建省泉州市丰泽区万科二期102室'
             }
         });
     }
-    
-    // 添加一个已出售状态的订单（作为示例）
-    const sellDate = new Date();
-    sellDate.setDate(sellDate.getDate() - 2);
-    
-    orders.push({
-        id: 'ORD' + Date.now().toString().slice(-8) + '21',
-        time: formatDate(sellDate),
-        status: '已出售',
-        items: [{
-            id: 'RTX4080' + i,
-            name: 'NVIDIA GeForce RTX 4080 16GB GDDR6X',
-            image: 'https://placehold.co/80x80/e2e8f0/475569?text=RTX+4080',
-            price: 8999,
-            quantity: 1
-        }],
-        total: 8999,
-        address: {
-            name: '李四',
-            phone: '13900139000',
-            address: '上海市浦东新区张江高科技园区博云路2号 创新大厦 5层'
-        }
-    });
     
     // 按时间降序排序
     return orders.sort((a, b) => new Date(b.time) - new Date(a.time));
