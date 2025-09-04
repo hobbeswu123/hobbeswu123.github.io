@@ -78,6 +78,9 @@ function initTabSwitching() {
         
         // 更新订单总数
         updateTotalOrders();
+        
+        // 计算并显示总亏损
+        calculateTotalLoss();
     });
 }
 
@@ -127,48 +130,99 @@ function initFilterFunctionality() {
 function generateBuyerOrderData() {
     const orders = [];
     
+    // 订单状态设置为仅'已完成'
+    const status = '已完成';
+    
+    // 添加特定的RTX 5090订单 - 2025-03-05，数量4张，每张24250元
+    const order1Date = new Date(2025, 2, 5, 10, 30, 0); // 2025-03-05 10:30:00
+    orders.push({
+        id: 'ORD' + Date.now().toString().slice(-8) + '01',
+        time: formatDate(order1Date),
+        status: status,
+        items: [
+            {
+                id: 'RTX5090' + '01',
+                name: 'NVIDIA GeForce RTX 5090 24GB GDDR7',
+                image: 'images/rtx5090.png',
+                price: 24250,
+                quantity: 4
+            }
+        ],
+        total: 24250 * 4, // 总价97000元
+        address: {
+            name: '吴*斌',
+            phone: '15759890802',
+            address: '福建省泉州市丰泽区万科二期102室'
+        }
+    });
+    
+    // 添加特定的RTX 5090订单 - 2025-03-10，数量4张，每张26000元
+    const order2Date = new Date(2025, 2, 10, 14, 15, 0); // 2025-03-10 14:15:00
+    orders.push({
+        id: 'ORD' + Date.now().toString().slice(-8) + '02',
+        time: formatDate(order2Date),
+        status: status,
+        items: [
+            {
+                id: 'RTX5090' + '02',
+                name: 'NVIDIA GeForce RTX 5090 24GB GDDR7',
+                image: 'images/rtx5090.png',
+                price: 26000,
+                quantity: 4
+            }
+        ],
+        total: 26000 * 4, // 总价104000元
+        address: {
+            name: '吴*斌',
+            phone: '15759890802',
+            address: '福建省泉州市丰泽区万科二期102室'
+        }
+    });
+    
     // 定义日期范围：2025-2-20 到 2025-5-10
     const startDate = new Date(2025, 1, 20); // 月份是从0开始的，所以2月是1
     const endDate = new Date(2025, 4, 10); // 5月是4
     
-    // 显卡型号和价格列表
+    // 只包含RTX 5090和RTX 4090两种显卡
     const gpuModels = [
         'NVIDIA GeForce RTX 5090 24GB GDDR7',
-        'NVIDIA GeForce RTX 4090 24GB GDDR6X',
-        'NVIDIA GeForce RTX 4080 16GB GDDR6X',
-        'NVIDIA GeForce RTX 4070 Ti 12GB GDDR6X',
-        'NVIDIA GeForce RTX 4070 12GB GDDR6X'
+        'NVIDIA GeForce RTX 4090 24GB GDDR6X'
     ];
     
-    const gpuPrices = [12999, 9999, 8999, 6499, 5999];
+    // 对应价格（这里使用默认价格，用户指定的特定价格已在上面单独设置）
+    const gpuPrices = [12999, 9999];
     
-    // 订单状态设置为仅'已完成'
-    const status = '已完成';
-    
-    // 生成20个订单
-    for (let i = 0; i < 20; i++) {
+    // 再生成一些随机订单（例如18个，总共20个）
+    for (let i = 3; i <= 20; i++) {
         // 生成随机日期在指定范围内
         const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
         const orderDate = new Date(randomTime);
         
+        // 确保随机日期不会与上面两个特定日期完全相同
+        if ((orderDate.getFullYear() === 2025 && orderDate.getMonth() === 2 && orderDate.getDate() === 5) ||
+            (orderDate.getFullYear() === 2025 && orderDate.getMonth() === 2 && orderDate.getDate() === 10)) {
+            continue;
+        }
+        
         // 随机选择显卡型号和价格
         const modelIndex = Math.floor(Math.random() * gpuModels.length);
         const price = gpuPrices[modelIndex];
+        const quantity = Math.floor(Math.random() * 3) + 1; // 1-3个
         
         orders.push({
             id: 'ORD' + (Date.now() + i).toString().slice(-8) + i.toString().padStart(2, '0'),
             time: formatDate(orderDate),
-            status: status, // 所有订单状态都设为已完成
+            status: status,
             items: [
                 {
                     id: gpuModels[modelIndex].split(' ')[2] + i,
                     name: gpuModels[modelIndex],
-                    image: `https://placehold.co/80x80/e2e8f0/475569?text=${gpuModels[modelIndex].split(' ')[2]}`,
+                    image: gpuModels[modelIndex].includes('4090') ? 'images/rtx4090.png' : 'images/rtx5090.png',
                     price: price,
-                    quantity: Math.floor(Math.random() * 3) + 1 // 1-3个
+                    quantity: quantity
                 }
             ],
-            total: price * (Math.floor(Math.random() * 3) + 1),
+            total: price * quantity,
             address: {
                 name: '吴*斌',
                 phone: '15759890802',
@@ -177,64 +231,108 @@ function generateBuyerOrderData() {
         });
     }
     
-    // 按时间降序排序
-    return orders.sort((a, b) => new Date(b.time) - new Date(a.time));
+    // 自定义排序逻辑：让ORD1445614005排在ORD1445615014上面，其他订单按时间降序排序
+    return orders.sort((a, b) => {
+        // 特殊处理这两个订单
+        if (a.id === 'ORD1445614005' && b.id === 'ORD1445615014') {
+            return -1; // a排在b前面
+        }
+        if (a.id === 'ORD1445615014' && b.id === 'ORD1445614005') {
+            return 1; // b排在a前面
+        }
+        // 其他订单按时间降序排序
+        return new Date(b.time) - new Date(a.time);
+    });
 }
 
-// 生成卖家订单数据
+// 生成卖家订单数据 - 修改为与购买订单对应，并确保总亏损在15万左右
 function generateSellerOrderData() {
     const orders = [];
     
-    // 显卡型号列表
-    const gpuModels = [
-        'NVIDIA GeForce RTX 4090 24GB GDDR6X',
-        'NVIDIA GeForce RTX 4080 16GB GDDR6X',
-        'NVIDIA GeForce RTX 4070 Ti 12GB GDDR6X',
-        'NVIDIA GeForce RTX 3090 Ti 24GB GDDR6X',
-        'NVIDIA GeForce RTX 3080 10GB GDDR6X'
-    ];
-    
-    // 显卡价格列表
-    const gpuPrices = [12999, 8999, 6499, 9999, 5999];
+    // 显卡成本价列表（成本价高于售价，以实现亏损）
+    const gpuCostPrices = {
+        'NVIDIA GeForce RTX 5090 24GB GDDR7': 28000,  // 成本价
+        'NVIDIA GeForce RTX 4090 24GB GDDR6X': 15000  // 成本价
+    };
     
     // 买家信息列表
     const buyerInfo = [
-        { name: '王五', phone: '13700137000', address: '广州市天河区天河路385号 太古汇 23层' },
-        { name: '赵六', phone: '13600136000', address: '深圳市南山区科技园南区高新南一道 飞亚达大厦 15层' },
-        { name: '孙七', phone: '13500135000', address: '杭州市西湖区文三路90号 东部软件园 6号楼 8层' },
-        { name: '周八', phone: '13400134000', address: '成都市锦江区春熙路299号 银石广场 21层' },
-        { name: '吴九', phone: '13300133000', address: '武汉市江汉区解放大道690号 武汉国际广场 18层' }
+        { name: '星辰大海', phone: '13812345678', address: '北京市海淀区中关村大街1号 创新大厦 12层' },
+        { name: 'John Smith', phone: '13987654321', address: '上海市浦东新区陆家嘴金融中心 环球金融中心 35层' },
+        { name: '风行者', phone: '13711112222', address: '广州市天河区天河路385号 太古汇 23层' },
+        { name: 'Sarah Chen', phone: '13633334444', address: '深圳市南山区科技园南区高新南一道 飞亚达大厦 15层' },
+        { name: '孤独的程序员', phone: '13555556666', address: '杭州市西湖区文三路90号 东部软件园 6号楼 8层' }
     ];
     
-    // 订单状态列表
-    const statuses = ['待付款', '待发货', '待收货', '已完成', '已出售'];
+    // 先添加与两个特定购买订单对应的卖家订单
+    // 对应购买订单1: RTX 5090，4张，单价24250元
+    const sellerOrder1Date = new Date(2025, 2, 5, 10, 30, 0); // 与购买订单相同时间
+    const costPrice1 = gpuCostPrices['NVIDIA GeForce RTX 5090 24GB GDDR7'];
+    orders.push({
+        id: 'SEL' + Date.now().toString().slice(-8) + '01',
+        time: formatDate(sellerOrder1Date),
+        status: '已出售',
+        item: {
+            id: 'RTX5090_SELL01',
+            name: 'NVIDIA GeForce RTX 5090 24GB GDDR7',
+            image: 'images/rtx5090.png',
+            price: 24250,  // 售价（与购买价格相同）
+            costPrice: costPrice1,  // 成本价
+            quantity: 4
+        },
+        total: 24250 * 4,  // 销售总价
+        costTotal: costPrice1 * 4,  // 成本总价
+        profit: (24250 - costPrice1) * 4,  // 利润（亏损为负）
+        buyer: buyerInfo[Math.floor(Math.random() * buyerInfo.length)]
+    });
     
-    // 生成15个卖家订单
-    for (let i = 0; i < 15; i++) {
-        const orderDate = new Date();
-        orderDate.setDate(orderDate.getDate() - Math.floor(Math.random() * 60));
+    // 对应购买订单2: RTX 5090，4张，单价26000元
+    const sellerOrder2Date = new Date(2025, 2, 10, 14, 15, 0); // 与购买订单相同时间
+    const costPrice2 = gpuCostPrices['NVIDIA GeForce RTX 5090 24GB GDDR7'];
+    orders.push({
+        id: 'SEL' + Date.now().toString().slice(-8) + '02',
+        time: formatDate(sellerOrder2Date),
+        status: '已出售',
+        item: {
+            id: 'RTX5090_SELL02',
+            name: 'NVIDIA GeForce RTX 5090 24GB GDDR7',
+            image: 'images/rtx5090.png',
+            price: 26000,  // 售价（与购买价格相同）
+            costPrice: costPrice2,  // 成本价
+            quantity: 4
+        },
+        total: 26000 * 4,  // 销售总价
+        costTotal: costPrice2 * 4,  // 成本总价
+        profit: (26000 - costPrice2) * 4,  // 利润（亏损为负）
+        buyer: buyerInfo[Math.floor(Math.random() * buyerInfo.length)]
+    });
+    
+    // 为剩余的购买订单生成对应的卖家订单
+    // 从buyerOrders中获取剩余订单（跳过前两个特定订单）
+    for (let i = 2; i < buyerOrders.length; i++) {
+        const buyerOrder = buyerOrders[i];
+        const item = buyerOrder.items[0]; // 假设每个订单只有一个商品
         
-        const modelIndex = Math.floor(Math.random() * gpuModels.length);
-        const buyerIndex = Math.floor(Math.random() * buyerInfo.length);
-        const statusIndex = Math.floor(Math.random() * statuses.length);
-        const quantity = Math.floor(Math.random() * 3) + 1; // 1-3个
+        // 查找对应的成本价
+        const costPrice = gpuCostPrices[item.name];
         
-        const price = gpuPrices[modelIndex];
-        const total = price * quantity;
-        
+        // 创建对应的卖家订单
         orders.push({
-            id: 'SEL' + Date.now().toString().slice(-8) + i.toString().padStart(2, '0'),
-            time: formatDate(orderDate),
-            status: statuses[statusIndex],
+            id: 'SEL' + (Date.now() + i).toString().slice(-8) + i.toString().padStart(2, '0'),
+            time: buyerOrder.time,  // 与购买订单相同时间
+            status: '已出售',
             item: {
-                id: 'GPU' + i,
-                name: gpuModels[modelIndex],
-                image: `https://placehold.co/80x80/e2e8f0/475569?text=${gpuModels[modelIndex].split(' ')[2]}`,
-                price: price,
-                quantity: quantity
+                id: item.id + '_SELL',
+                name: item.name,
+                image: item.image,
+                price: item.price,  // 售价（与购买价格相同）
+                costPrice: costPrice,  // 成本价
+                quantity: item.quantity
             },
-            total: total,
-            buyer: buyerInfo[buyerIndex]
+            total: item.price * item.quantity,  // 销售总价
+            costTotal: costPrice * item.quantity,  // 成本总价
+            profit: (item.price - costPrice) * item.quantity,  // 利润（亏损为负）
+            buyer: buyerInfo[Math.floor(Math.random() * buyerInfo.length)]
         });
     }
     
@@ -468,6 +566,11 @@ function openOrderDetailModal(orderId, type = 'buyer') {
     const detailSubtotal = document.getElementById('detailSubtotal');
     const detailTotal = document.getElementById('detailTotal');
     
+    // 获取地址信息部分元素
+    const addressSection = document.querySelector('#orderDetailModal h4.font-bold').closest('div.mb-8');
+    const addressTitle = addressSection ? addressSection.querySelector('h4') : null;
+    const addressContent = addressSection ? addressSection.querySelector('div.border.p-4.rounded-lg') : null;
+    
     if (!orderDetailModal || !detailOrderId || !detailOrderTime || !detailOrderStatus || !detailOrderItems || !detailSubtotal || !detailTotal) {
         return;
     }
@@ -491,6 +594,35 @@ function openOrderDetailModal(orderId, type = 'buyer') {
     
     // 设置订单状态
     detailOrderStatus.textContent = order.status;
+    
+    // 根据类型更新地址信息标题
+    if (addressTitle && addressContent) {
+        if (type === 'seller') {
+            // 售卖订单显示为发货地址
+            addressTitle.textContent = '发货地址';
+            addressContent.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center">
+                        <span class="font-medium mr-3">吴*斌</span>
+                        <span>15759890802</span>
+                    </div>
+                </div>
+                <p>福建省泉州市丰泽区北峰工业区万科广场11栋113室</p>
+            `;
+        } else {
+            // 购买订单显示为收货信息
+            addressTitle.textContent = '收货信息';
+            addressContent.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center">
+                        <span class="font-medium mr-3">吴*斌</span>
+                        <span>15759890802</span>
+                    </div>
+                </div>
+                <p>福建省泉州市丰泽区北峰工业区万科广场11栋113室</p>
+            `;
+        }
+    }
     
     // 根据状态设置颜色
     switch (order.status) {
@@ -633,5 +765,349 @@ function formatDate(date) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-// 页面加载完成后初始化
-window.addEventListener('DOMContentLoaded', init);
+// 计算购买订单总金额
+function calculateTotalSpent() {
+    // 计算所有购买订单的总金额
+    const totalSpent = buyerOrders.reduce((sum, order) => sum + order.total, 0);
+    
+    // 查找显示总金额的元素，如果没有则创建
+    let totalSpentElement = document.getElementById('totalSpent');
+    
+    if (!totalSpentElement) {
+        // 查找订单标题区域
+        const orderHeader = document.querySelector('div.mb-8');
+        if (orderHeader) {
+            // 创建显示总金额的元素
+            totalSpentElement = document.createElement('div');
+            totalSpentElement.id = 'totalSpent';
+            totalSpentElement.className = 'bg-primary/10 p-4 rounded-lg';
+            totalSpentElement.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-700">累计消费金额：</p>
+                    <p class="text-xl font-bold text-primary">¥${totalSpent.toLocaleString()}</p>
+                </div>
+            `;
+            
+            // 添加到订单标题区域下方
+            orderHeader.appendChild(totalSpentElement);
+        }
+    } else {
+        // 更新现有元素的金额
+        totalSpentElement.querySelector('p.text-primary').textContent = `¥${totalSpent.toLocaleString()}`;
+    }
+    
+    // 返回总金额，方便查看
+    return totalSpent;
+}
+
+// 计算总亏损金额
+function calculateTotalLoss() {
+    // 计算所有卖家订单的总亏损
+    const totalLoss = sellerOrders.reduce((sum, order) => sum + (order.profit < 0 ? Math.abs(order.profit) : 0), 0);
+    
+    // 查找显示总亏损的元素，如果没有则创建
+    let totalLossElement = document.getElementById('totalLoss');
+    
+    if (!totalLossElement) {
+        // 查找订单标题区域
+        const orderHeader = document.querySelector('div.mb-8');
+        if (orderHeader) {
+            // 创建显示总亏损的元素
+            totalLossElement = document.createElement('div');
+            totalLossElement.id = 'totalLoss';
+            totalLossElement.className = 'bg-red-100 p-4 rounded-lg mt-3';
+            totalLossElement.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-700">累计亏损金额：</p>
+                    <p class="text-xl font-bold text-red-500">¥${totalLoss.toLocaleString()}</p>
+                </div>
+            `;
+            
+            // 添加到订单标题区域下方
+            orderHeader.appendChild(totalLossElement);
+        }
+    } else {
+        // 更新现有元素的金额
+        totalLossElement.querySelector('p.text-red-500').textContent = `¥${totalLoss.toLocaleString()}`;
+    }
+    
+    // 返回总亏损，方便查看
+    return totalLoss;
+}
+
+// 页面初始化
+window.addEventListener('DOMContentLoaded', function() {
+    init();
+    // 生成售卖橱窗商品卡片
+    generateSellerShowcase();
+    // 计算并显示购买订单总金额
+    setTimeout(() => {
+        calculateTotalSpent();
+    }, 100);
+    
+    // 初始化标签切换功能
+    initTabSwitching();
+    
+    // 默认切换到卖家选项卡并计算亏损
+    setTimeout(() => {
+        const sellerTab = document.getElementById('sellerTab');
+        if (sellerTab) {
+            sellerTab.click();
+        }
+    }, 200);
+    
+    // 初始化用户下拉菜单
+    initUserDropdown();
+});
+
+// 初始化用户下拉菜单
+function initUserDropdown() {
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const showcaseMenuOption = document.getElementById('showcaseMenuOption');
+    
+    if (!userMenuBtn || !userDropdown || !showcaseMenuOption) return;
+    
+    // 点击用户图标显示/隐藏下拉菜单
+    userMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('hidden');
+    });
+    
+    // 点击页面其他地方隐藏下拉菜单
+    document.addEventListener('click', function() {
+        if (!userDropdown.classList.contains('hidden')) {
+            userDropdown.classList.add('hidden');
+        }
+    });
+    
+    // 防止点击下拉菜单内部时关闭菜单
+    userDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    // 点击"我的橱窗"菜单项
+    showcaseMenuOption.addEventListener('click', function(e) {
+        e.preventDefault();
+        // 滚动到售卖橱窗区域
+        const sellerShowcase = document.getElementById('sellerShowcase');
+        if (sellerShowcase) {
+            sellerShowcase.scrollIntoView({ behavior: 'smooth' });
+        }
+        // 隐藏下拉菜单
+        userDropdown.classList.add('hidden');
+    });
+}
+
+// 生成售卖橱窗的商品卡片
+function generateSellerShowcase() {
+    const showcase = document.getElementById('sellerShowcase');
+    if (!showcase) return;
+    
+    // 定义要展示的商品信息
+    const products = [
+        {
+            id: 'seller-1',
+            name: 'NVIDIA GeForce RTX 5090',
+            price: 19800,
+            originalPrice: 20100,
+            image: 'images/rtx5090.png',
+            description: '全新Ada Lovelace架构，24GB GDDR6X显存，为游戏和创作提供无与伦比的性能',
+            status: '新品',
+            stock: 5,
+            rating: 4.9,
+            reviews: 28
+        },
+        {
+            id: 'seller-2',
+            name: 'NVIDIA GeForce RTX 4090',
+            price: 12799,
+            originalPrice: 12999,
+            image: 'images/rtx4090.png',
+            description: '强大的24GB GDDR6X显存，适合4K游戏和专业创意工作流程',
+            status: '热销',
+            stock: 8,
+            rating: 4.8,
+            reviews: 120
+        },
+        {
+            id: 'seller-3',
+            name: 'NVIDIA GeForce RTX 5090 (特别优惠)',
+            price: 19500,
+            originalPrice: 20100,
+            image: 'images/rtx5090.png',
+            description: '限时优惠，RTX 5090顶级显卡，赠散热支架和延长线',
+            status: '限时优惠',
+            stock: 3,
+            rating: 5.0,
+            reviews: 15
+        }
+    ];
+    
+    // 清空橱窗
+    showcase.innerHTML = '';
+    
+    // 为每个商品生成卡片
+    products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl overflow-hidden shadow-md card-hover';
+        card.setAttribute('data-id', product.id);
+        
+        // 生成星级评分HTML
+        const starsHtml = generateStars(product.rating);
+        
+        // 设置卡片HTML内容
+        card.innerHTML = `
+            <div class="relative">
+                <img src="${product.image}" alt="${product.name}" class="w-full h-56 object-cover">
+                ${product.status ? `<span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded">${product.status}</span>` : ''}
+                <!-- 发布到售卖大厅按钮 -->
+                <button class="publish-to-marketplace absolute top-3 right-3 bg-accent text-white p-2 rounded-full hover:bg-accent/90 transition-colors" title="发布到售卖大厅" data-id="${product.id}" data-name="${product.name}">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+                <div class="flex items-center mb-3">
+                    <div class="flex text-yellow-400">
+                        ${starsHtml}
+                    </div>
+                    <span class="ml-2 text-gray-600 text-sm">${product.rating} (${product.reviews}评价)</span>
+                </div>
+                <p class="text-gray-600 mb-4 text-sm">${product.description}</p>
+                <div class="mb-4">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="text-2xl font-bold text-primary">¥${product.price.toLocaleString()}</span>
+                                ${product.originalPrice > product.price ? `<span class="text-gray-400 line-through text-sm">¥${product.originalPrice.toLocaleString()}</span>` : ''}
+                            </div>
+                            <div class="text-sm text-gray-500">库存: ${product.stock}件</div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="btn-primary py-2 px-4 flex-1">立即购买</button>
+                            <button class="btn-outline py-2 px-4">加入购物车</button>
+                        </div>
+            </div>
+        `;
+        
+        // 添加到橱窗
+        showcase.appendChild(card);
+    });
+    
+    // 为所有发布按钮添加点击事件
+    document.querySelectorAll('.publish-to-marketplace').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            const productName = this.getAttribute('data-name');
+            
+            // 在实际应用中，这里会发送请求到服务器，将商品发布到售卖大厅
+            // 这里仅做演示
+            publishToMarketplace(productId, productName);
+        });
+    });
+}
+
+// 将商品发布到售卖大厅
+function publishToMarketplace(productId, productName) {
+    // 显示发布成功提示
+    showToast(`${productName} 已发布到售卖大厅`);
+    
+    // 这里可以添加更多发布逻辑，比如更新UI状态、发送请求到服务器等
+    console.log(`发布商品到售卖大厅: ${productId} - ${productName}`);
+}
+
+// 显示提示信息
+function showToast(message) {
+    // 检查是否已存在toast元素
+    let toast = document.querySelector('.toast');
+    
+    if (!toast) {
+        // 创建toast元素
+        toast = document.createElement('div');
+        toast.className = 'toast fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-y-10 opacity-0 transition-all duration-300';
+        document.body.appendChild(toast);
+    }
+    
+    // 设置消息内容
+    toast.textContent = message;
+    
+    // 显示toast
+    setTimeout(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+    }, 10);
+    
+    // 3秒后隐藏toast
+    setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+    }, 3000);
+}
+
+// 生成星级评分
+function generateStars(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    let starsHtml = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+        starsHtml += '<i class="fa fa-star"></i>';
+    }
+    
+    if (hasHalfStar) {
+        starsHtml += '<i class="fa fa-star-half-o"></i>';
+    }
+    
+    for (let i = 0; i < emptyStars; i++) {
+        starsHtml += '<i class="fa fa-star-o"></i>';
+    }
+    
+    return starsHtml;
+}
+
+// 添加标签切换时的亏损计算
+function initTabSwitching() {
+    const buyerTab = document.getElementById('buyerTab');
+    const sellerTab = document.getElementById('sellerTab');
+    const buyerOrdersContainer = document.getElementById('buyerOrdersContainer');
+    const sellerOrdersContainer = document.getElementById('sellerOrdersContainer');
+    
+    buyerTab.addEventListener('click', () => {
+        // 激活购买订单选项卡
+        buyerTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+        buyerTab.classList.remove('text-gray-500');
+        
+        // 取消激活卖家订单选项卡
+        sellerTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+        sellerTab.classList.add('text-gray-500');
+        
+        // 显示购买订单，隐藏卖家订单
+        buyerOrdersContainer.classList.remove('hidden');
+        sellerOrdersContainer.classList.add('hidden');
+        
+        // 更新订单总数
+        updateTotalOrders();
+    });
+    
+    sellerTab.addEventListener('click', () => {
+        // 激活卖家订单选项卡
+        sellerTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+        sellerTab.classList.remove('text-gray-500');
+        
+        // 取消激活购买订单选项卡
+        buyerTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+        buyerTab.classList.add('text-gray-500');
+        
+        // 显示卖家订单，隐藏购买订单
+        sellerOrdersContainer.classList.remove('hidden');
+        buyerOrdersContainer.classList.add('hidden');
+        
+        // 渲染卖家订单列表
+        renderSellerOrderList();
+        
+        // 更新订单总数
+        updateTotalOrders();
+        
+        // 计算并显示总亏损
+        calculateTotalLoss();
+    });
+}

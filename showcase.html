@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的橱窗 - 英伟达显卡专卖店</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#76B900', // 英伟达绿色
+                        secondary: '#1A1A1A',
+                        accent: '#FF7043',
+                        neutral: '#F5F5F5',
+                    },
+                    fontFamily: {
+                        sans: ['SimHei', 'WenQuanYi Micro Hei', 'Heiti TC', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: 'SimHei', 'WenQuanYi Micro Hei', 'Heiti TC', sans-serif !important;
+            }
+        }
+        
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+            }
+            .btn-outline {
+                @apply border border-primary text-primary hover:bg-primary/10 font-semibold py-2 px-6 rounded-lg transition-all duration-300;
+            }
+            .card-hover {
+                @apply hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1;
+            }
+            .total-card {
+                @apply bg-gradient-to-r from-primary/90 to-primary text-white p-6 rounded-xl shadow-lg mb-8;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-3xl text-primary"></i>
+                <h1 class="text-2xl font-bold text-secondary">NVIDIA<span class="text-primary">显卡专卖</span></h1>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="nvidia-shop.html#products" class="font-medium hover:text-primary transition-colors">显卡产品</a>
+                <a href="nvidia-shop.html#featured" class="font-medium hover:text-primary transition-colors">精选推荐</a>
+                <a href="nvidia-shop.html#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
+                <a href="nvidia-shop.html#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+                <a href="order-page.html" class="font-medium hover:text-primary transition-colors">订单记录</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 hover:text-primary transition-colors" id="cartBtn">
+                    <i class="fa fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" id="cartCount">0</span>
+                </button>
+                <div class="relative">
+                    <span class="font-medium text-gray-700 mr-2">吴煌斌</span>
+                    <button id="userMenuBtn" class="p-2 hover:text-primary transition-colors focus:outline-none">
+                        <i class="fa fa-user text-xl"></i>
+                    </button>
+                    <!-- 用户下拉菜单 -->
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden">
+                        <a href="showcase.html" class="block px-4 py-2 text-sm text-primary hover:bg-gray-100 font-medium">我的橱窗</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人信息</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账号设置</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">退出登录</a>
+                    </div>
+                </div>
+                <button class="md:hidden p-2 hover:text-primary transition-colors">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 橱窗页面内容 -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- 页面标题 -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-2">我的橱窗</h2>
+                <p class="text-gray-600">管理您展示的显卡产品</p>
+            </div>
+
+            <!-- 总计信息卡片 -->
+            <div id="totalInfoCard" class="total-card">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <h3 class="text-xl font-bold mb-1">橱窗总计</h3>
+                        <p class="opacity-90">展示中的商品信息概览</p>
+                    </div>
+                    <div class="flex space-x-8">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold" id="totalProducts">0</p>
+                            <p class="opacity-90 text-sm">商品总数</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold" id="totalStock">0</p>
+                            <p class="opacity-90 text-sm">总库存量</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold" id="totalValue">¥0</p>
+                            <p class="opacity-90 text-sm">商品总价值</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 橱窗商品列表 -->
+            <div id="sellerShowcase" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 商品卡片将通过JS动态生成 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-secondary text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-microchip text-3xl text-primary"></i>
+                        <h2 class="text-2xl font-bold">NVIDIA<span class="text-primary">显卡专卖</span></h2>
+                    </div>
+                    <p class="text-gray-400 max-w-md">提供最新款NVIDIA显卡，品质保证，专业售后服务。</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">购物指南</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">购买流程</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">支付方式</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">常见问题</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">售后服务</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">退换政策</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">保修条款</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">技术支持</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                        <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center text-gray-400"><i class="fa fa-phone mr-2"></i> 400-123-4567</li>
+                            <li class="flex items-center text-gray-400"><i class="fa fa-envelope mr-2"></i> support@nvidia-shop.com</li>
+                            <li class="flex items-center text-gray-400"><i class="fa fa-map-marker mr-2"></i> 北京市海淀区中关村</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 NVIDIA显卡专卖店. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="showcase.js"></script>
+</body>
+</html>

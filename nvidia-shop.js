@@ -134,7 +134,8 @@ function updateCart() {
             itemElement.className = 'flex justify-between items-center py-3 border-b';
             itemElement.innerHTML = `
                 <div class="flex items-center">
-                    <img src="https://picsum.photos/id/${item.id}/60/60" alt="${item.name}" class="w-16 h-16 object-cover rounded mr-4">
+                    <!-- 根据商品ID选择对应的本地图片 -->
+                    <img src="${item.id === 1 ? 'images/rtx4090.png' : item.id === 2 ? 'images/rtx4080.png' : item.id === 3 ? 'images/rtx4070.png' : item.id === 4 ? 'images/rtx4070.png' : item.id === 5 ? 'images/rtx5090.png' : 'images/nvidia-gpu.svg'}" alt="${item.name}" class="w-16 h-16 object-cover rounded mr-4">
                     <div>
                         <h4 class="font-medium">${item.name}</h4>
                         <p class="text-primary font-bold">¥${item.price.toLocaleString()}</p>
@@ -221,7 +222,7 @@ function updateOrderSummary() {
             itemElement.className = 'flex justify-between items-center p-4 border-b';
             itemElement.innerHTML = `
                 <div class="flex items-center">
-                    <img src="https://picsum.photos/id/${item.id}/60/60" alt="${item.name}" class="w-16 h-16 object-cover rounded mr-4">
+                    <img src="${item.id === 1 ? 'images/rtx4090.png' : item.id === 2 ? 'images/rtx4080.png' : item.id === 3 ? 'images/rtx4070.png' : item.id === 4 ? 'images/rtx4070.png' : item.id === 5 ? 'images/rtx5090.png' : 'images/nvidia-gpu.svg'}" alt="${item.name}" class="w-16 h-16 object-cover rounded mr-4">
                     <div>
                         <h4 class="font-medium">${item.name}</h4>
                         <p class="text-gray-500">数量: ${item.quantity}</p>
@@ -334,8 +335,8 @@ function showPaymentPage(paymentMethod) {
                 <p class="text-gray-600 mb-4">请使用${paymentMethod}扫描下方二维码完成支付</p>
                 <div class="flex justify-center">
                     <div class="w-48 h-48 bg-white p-2 border rounded-lg flex items-center justify-center">
-                        <!-- 随机生成一个看起来像二维码的图片 -->
-                        <img src="https://picsum.photos/id/${Math.floor(Math.random() * 100)}/180/180" alt="支付二维码" class="w-full h-full object-cover">
+                        <!-- 使用本地的qcode.webp图片 -->
+                        <img src="images/qcode.webp" alt="支付二维码" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
@@ -507,6 +508,92 @@ function showToast(message, duration = 3000) {
     }, duration);
 }
 
+// 聊天窗口相关元素
+const chatModal = document.getElementById('chatModal');
+const closeChatBtn = document.getElementById('closeChatBtn');
+const chatSellerName = document.getElementById('chatSellerName');
+const chatSellerAvatar = document.getElementById('chatSellerAvatar');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendMessageBtn = document.getElementById('sendMessageBtn');
+
+// 打开聊天窗口函数
+function openChatModal(sellerName, sellerAvatar, productName) {
+    // 设置聊天窗口信息
+    chatSellerName.textContent = sellerName;
+    chatSellerAvatar.src = sellerAvatar;
+    chatSellerAvatar.alt = sellerName;
+    
+    // 清空聊天记录，保留欢迎消息
+    chatMessages.innerHTML = `
+        <div class="flex items-start gap-3">
+            <img src="${sellerAvatar}" alt="${sellerName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            <div class="bg-gray-100 p-3 rounded-lg rounded-tl-none max-w-[70%]">
+                <p>您好！请问您对我发布的 ${productName} 感兴趣吗？有什么可以帮助您的？</p>
+            </div>
+        </div>
+    `;
+    
+    // 显示聊天窗口
+    chatModal.classList.remove('hidden');
+    
+    // 清空输入框
+    chatInput.value = '';
+    
+    // 聚焦到输入框
+    chatInput.focus();
+}
+
+// 关闭聊天窗口
+function closeChatModal() {
+    chatModal.classList.add('hidden');
+}
+
+// 添加消息到聊天窗口
+function addMessage(text, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex items-start gap-3 ${isUser ? 'justify-end' : ''}`;
+    
+    if (isUser) {
+        messageDiv.innerHTML = `
+            <div class="bg-primary text-white p-3 rounded-lg rounded-tr-none max-w-[70%]">
+                <p>${text}</p>
+            </div>
+            <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <img src="${chatSellerAvatar.src}" alt="${chatSellerName.textContent}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            <div class="bg-gray-100 p-3 rounded-lg rounded-tl-none max-w-[70%]">
+                <p>${text}</p>
+            </div>
+        `;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+    
+    // 滚动到底部
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 模拟卖家回复
+function simulateSellerReply() {
+    const replies = [
+        "这张显卡使用时间不长，性能非常好！",
+        "您还有其他问题吗？",
+        "价格可以再商量，请问您心理价位是多少？",
+        "如果您确定要，我可以提供更优惠的价格。",
+        "我可以提供完整的购买凭证和保修信息。"
+    ];
+    
+    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+    
+    // 延迟显示卖家回复
+    setTimeout(() => {
+        addMessage(randomReply, false);
+    }, 1000 + Math.random() * 2000);
+}
+
 // 联系购买按钮点击事件
 const buyFromSellerBtns = document.querySelectorAll('.buy-from-seller');
 buyFromSellerBtns.forEach(btn => {
@@ -514,14 +601,44 @@ buyFromSellerBtns.forEach(btn => {
         const card = this.closest('.rounded-xl');
         const sellerName = card.querySelector('h3').textContent;
         const productName = card.querySelector('h4').textContent;
+        const sellerAvatar = card.querySelector('img[alt="卖家头像"]').src;
         
-        showToast(`正在连接到卖家 ${sellerName}...`);
-        
-        // 模拟联系卖家的延迟
-        setTimeout(() => {
-            showToast(`已成功联系卖家 ${sellerName}，请等待回复`);
-        }, 1500);
+        openChatModal(sellerName, sellerAvatar, productName);
     });
+});
+
+// 发送消息按钮点击事件
+sendMessageBtn.addEventListener('click', function() {
+    const messageText = chatInput.value.trim();
+    
+    if (messageText) {
+        // 添加用户消息
+        addMessage(messageText, true);
+        
+        // 清空输入框
+        chatInput.value = '';
+        
+        // 模拟卖家回复
+        simulateSellerReply();
+    }
+});
+
+// 按下Enter键发送消息
+chatInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessageBtn.click();
+    }
+});
+
+// 关闭聊天窗口按钮点击事件
+closeChatBtn.addEventListener('click', closeChatModal);
+
+// 点击模态框背景关闭聊天窗口
+chatModal.addEventListener('click', function(event) {
+    if (event.target === chatModal) {
+        closeChatModal();
+    }
 });
 
 // 查看完整号码按钮点击事件
@@ -696,13 +813,9 @@ function bindNewSellerCards() {
             const card = this.closest('.rounded-xl');
             const sellerName = card.querySelector('h3').textContent;
             const productName = card.querySelector('h4').textContent;
+            const sellerAvatar = card.querySelector('img[alt="卖家头像"]').src;
             
-            showToast(`正在连接到卖家 ${sellerName}...`);
-            
-            // 模拟联系卖家的延迟
-            setTimeout(() => {
-                showToast(`已成功联系卖家 ${sellerName}，请等待回复`);
-            }, 1500);
+            openChatModal(sellerName, sellerAvatar, productName);
         });
     });
     

@@ -71,10 +71,19 @@
                     <i class="fa fa-shopping-cart text-xl"></i>
                     <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" id="cartCount">0</span>
                 </button>
-                <span class="font-medium text-gray-700">吴煌斌</span>
-                <button class="p-2 hover:text-primary transition-colors">
-                    <i class="fa fa-user text-xl"></i>
-                </button>
+                <div class="relative">
+                    <span class="font-medium text-gray-700 mr-2">吴煌斌</span>
+                    <button id="userMenuBtn" class="p-2 hover:text-primary transition-colors focus:outline-none">
+                        <i class="fa fa-user text-xl"></i>
+                    </button>
+                    <!-- 用户下拉菜单 -->
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="showcaseMenuOption">我的橱窗</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人信息</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账号设置</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">退出登录</a>
+                    </div>
+                </div>
                 <button class="md:hidden p-2 hover:text-primary transition-colors">
                     <i class="fa fa-bars text-xl"></i>
                 </button>
@@ -121,6 +130,20 @@
                     <div class="flex space-x-4">
                         <button class="btn-outline py-1 px-4 text-sm">批量操作</button>
                         <button class="btn-primary py-1 px-4 text-sm">导出订单</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 售卖橱窗 -->
+            <div class="py-8 bg-neutral mb-8">
+                <div class="container mx-auto px-4">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-bold mb-2">我的售卖橱窗</h2>
+                        <p class="text-gray-600">出售RTX 5090和RTX 4090显卡，品质保证，价格优惠</p>
+                    </div>
+                    
+                    <div id="sellerShowcase" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 商品卡片将通过JS动态生成 -->
                     </div>
                 </div>
             </div>
@@ -225,14 +248,14 @@
                         </div>
                         <div>
                             <p class="text-gray-500">支付方式</p>
-                            <p>支付宝</p>
+                            <p>银联</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 收货信息 -->
+                <!-- 发货地址 -->
                 <div class="mb-8">
-                    <h4 class="text-lg font-bold mb-4">收货信息</h4>
+                    <h4 class="text-lg font-bold mb-4">发货地址</h4>
                     <div class="border p-4 rounded-lg">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex items-center">

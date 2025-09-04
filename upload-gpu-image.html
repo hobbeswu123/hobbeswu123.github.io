@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传RTX 4090图片工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .upload-container {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .upload-container:hover {
+            border-color: #4CAF50;
+        }
+        #fileInput {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 50px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        #preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 20px;
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .warning-message {
+            color: #ff9800;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>上传RTX 4090图片工具</h1>
+    
+    <div class="upload-container" onclick="document.getElementById('fileInput').click();">
+        <input type="file" id="fileInput" accept=".png">
+        <div class="upload-icon">📷</div>
+        <p>点击或拖拽PNG图片到此处上传</p>
+        <p id="fileInfo" class="warning-message">仅支持PNG格式图片</p>
+    </div>
+    
+    <img id="preview" alt="预览图片">
+    
+    <div class="info-box">
+        <h3>注意事项：</h3>
+        <ul>
+            <li>上传后，网站上所有RTX 4090显卡将使用此图片</li>
+            <li>图片建议尺寸：至少200x200像素</li>
+            <li>图片将被保存为：images/rtx4090.png</li>
+            <li>不需要转换为SVG格式，浏览器可以直接显示PNG图片</li>
+        </ul>
+    </div>
+    
+    <button id="submitBtn" disabled>上传并应用</button>
+    
+    <p id="statusMessage" class="success-message"></p>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const submitBtn = document.getElementById('submitBtn');
+        const fileInfo = document.getElementById('fileInfo');
+        const statusMessage = document.getElementById('statusMessage');
+        let uploadedFile = null;
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                
+                // 检查文件类型
+                if (file.type !== 'image/png') {
+                    fileInfo.textContent = '错误：请上传PNG格式图片！';
+                    fileInfo.style.color = '#f44336';
+                    preview.style.display = 'none';
+                    submitBtn.disabled = true;
+                    return;
+                }
+                
+                // 显示预览
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    uploadedFile = file;
+                };
+                reader.readAsDataURL(file);
+                
+                fileInfo.textContent = `已选择文件：${file.name} (${formatFileSize(file.size)})`;
+                fileInfo.style.color = '#4CAF50';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        submitBtn.addEventListener('click', function() {
+            if (uploadedFile) {
+                // 这里只是一个前端模拟，实际文件上传需要后端支持
+                // 在实际项目中，这里会发送AJAX请求到服务器上传文件
+                
+                statusMessage.textContent = '图片上传成功！网站上所有RTX 4090显卡将使用此图片。';
+                
+                // 提示用户需要手动更新网站代码
+                statusMessage.innerHTML += '<br><br>提示：由于这是一个模拟环境，您需要手动将网站代码中的RTX 4090图片引用从.svg改为.png。';
+                
+                // 显示需要修改的文件列表
+                statusMessage.innerHTML += `
+                    <div style="margin-top: 15px; text-align: left;">
+                        <p style="font-weight: bold;">需要修改的文件：</p>
+                        <ul>
+                            <li>nvidia-shop.html - 产品展示区和显卡售卖大厅</li>
+                            <li>nvidia-shop.js - 购物车和订单摘要</li>
+                            <li>order-page.js - 订单页面</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 允许拖拽上传
+        const uploadContainer = document.querySelector('.upload-container');
+        
+        uploadContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#4CAF50';
+        });
+        
+        uploadContainer.addEventListener('dragleave', function() {
+            this.style.borderColor = '#ccc';
+        });
+        
+        uploadContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#ccc';
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                // 手动触发change事件
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+    </script>
+</body>
+</html>

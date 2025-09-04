@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- 背景 -->
+  <rect width="400" height="300" rx="15" ry="15" fill="#1A1A1A" />
+  
+  <!-- 显卡主体 -->
+  <rect x="25" y="50" width="350" height="200" rx="8" ry="8" fill="#2A2A2A" />
+  
+  <!-- 风扇区域 -->
+  <circle cx="200" cy="150" r="70" fill="#1A1A1A" />
+  <circle cx="200" cy="150" r="60" fill="#333" />
+  <circle cx="200" cy="150" r="5" fill="#76B900" />
+  
+  <!-- 风扇叶片 -->
+  <path d="M200,80 L200,220" stroke="#555" stroke-width="4" />
+  <path d="M130,150 L270,150" stroke="#555" stroke-width="4" />
+  <path d="M150,100 L250,200" stroke="#555" stroke-width="4" />
+  <path d="M150,200 L250,100" stroke="#555" stroke-width="4" />
+  
+  <!-- NVIDIA 标志 -->
+  <text x="200" y="280" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#76B900" text-anchor="middle">NVIDIA</text>
+  
+  <!-- 型号标识 -->
+  <text x="200" y="40" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="middle">GEFORCE RTX</text>
+</svg>
