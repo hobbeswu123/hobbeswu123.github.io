@@ -94,9 +94,6 @@ function initTabSwitching() {
         
         // 更新订单总数
         updateTotalOrders();
-        
-        // 计算并显示总亏损
-        calculateTotalLoss();
     });
 }
 
@@ -602,7 +599,7 @@ function getStatusBadge(status) {
 // 获取购买订单操作按钮
 function getActionButtons(status) {
     // 为所有订单添加编辑按钮 - 不使用内联onclick，而是添加类名和数据属性
-    let editButton = '<button class="btn-outline py-1 px-3 text-xs bg-orange-50 text-orange-600 edit-order-btn" data-order-type="buyer">编辑数据</button>';
+    let editButton = '<button class="btn-outline py-1 px-3 text-xs bg-orange-50 text-orange-600 edit-order-btn" data-order-type="buyer">数据</button>';
     
     // 为所有订单添加删除按钮
     let deleteButton = '<button class="btn-outline py-1 px-3 text-xs bg-red-50 text-red-600 delete-order-btn" data-order-type="buyer">删除订单</button>';
@@ -625,13 +622,17 @@ function getActionButtons(status) {
             statusButtons = '';
     }
     
-    return editButton + ' ' + deleteButton + (statusButtons ? ' ' + statusButtons : '');
+    // 将编辑和删除按钮包装在默认隐藏的div中，并添加查看操作按钮
+    return `<button class="btn-outline py-1 px-3 text-xs bg-blue-50 text-blue-600 view-actions-btn">查看操作</button>
+            <div class="action-buttons hidden">
+                ${editButton} ${deleteButton}
+            </div> ${statusButtons ? ' ' + statusButtons : ''}`;
 }
 
 // 获取卖家订单操作按钮
 function getSellerActionButtons(status) {
     // 为所有订单添加编辑按钮 - 不使用内联onclick，而是添加类名和数据属性
-    let editButton = '<button class="btn-outline py-1 px-3 text-xs bg-orange-50 text-orange-600 edit-order-btn" data-order-type="seller">编辑数据</button>';
+    let editButton = '<button class="btn-outline py-1 px-3 text-xs bg-orange-50 text-orange-600 edit-order-btn" data-order-type="seller">数据</button>';
     
     // 为所有订单添加删除按钮
     let deleteButton = '<button class="btn-outline py-1 px-3 text-xs bg-red-50 text-red-600 delete-order-btn" data-order-type="seller">删除订单</button>';
@@ -655,7 +656,11 @@ function getSellerActionButtons(status) {
             statusButtons = '';
     }
     
-    return editButton + ' ' + deleteButton + (statusButtons ? ' ' + statusButtons : '');
+    // 将编辑和删除按钮包装在默认隐藏的div中，并添加查看操作按钮
+    return `<button class="btn-outline py-1 px-3 text-xs bg-blue-50 text-blue-600 view-actions-btn">查看操作</button>
+            <div class="action-buttons hidden">
+                ${editButton} ${deleteButton}
+            </div> ${statusButtons ? ' ' + statusButtons : ''}`;
 }
 
 // 打开订单详情模态框
@@ -1084,12 +1089,10 @@ function saveEditedOrder() {
         // 更新订单统计信息
         calculateOrderStats();
     } else {
-        renderSellerOrderList();
-        // 重新计算总亏损
-        calculateTotalLoss();
-        // 更新订单统计信息
-        calculateOrderStats();
-    }
+            renderSellerOrderList();
+            // 更新订单统计信息
+            calculateOrderStats();
+        }
     
     // 保存订单数据到本地存储
     saveOrdersToLocalStorage();
@@ -1199,53 +1202,134 @@ function calculateTotalSpent() {
     return totalSpent;
 }
 
-// 计算总亏损金额
-function calculateTotalLoss() {
-    // 计算所有卖家订单的总亏损
-    const totalLoss = sellerOrders.reduce((sum, order) => sum + (order.profit < 0 ? Math.abs(order.profit) : 0), 0);
-    
-    // 查找显示总亏损的元素，如果没有则创建
-    let totalLossElement = document.getElementById('totalLoss');
-    
-    if (!totalLossElement) {
-        // 查找订单标题区域
-        const orderHeader = document.querySelector('div.mb-8');
-        if (orderHeader) {
-            // 创建显示总亏损的元素
-            totalLossElement = document.createElement('div');
-            totalLossElement.id = 'totalLoss';
-            totalLossElement.className = 'bg-red-100 p-4 rounded-lg mt-3';
-            totalLossElement.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <p class="font-medium text-gray-700">累计亏损金额：</p>
-                    <p class="text-xl font-bold text-red-500">¥${totalLoss.toLocaleString()}</p>
-                </div>
-            `;
-            
-            // 添加到订单标题区域下方
-            orderHeader.appendChild(totalLossElement);
-        }
-    } else {
-        // 更新现有元素的金额
-        totalLossElement.querySelector('p.text-red-500').textContent = `¥${totalLoss.toLocaleString()}`;
-    }
-    
-    // 返回总亏损，方便查看
-    return totalLoss;
-}
+// 计算功能已移除，保留空函数以避免引用错误
 
 // 页面初始化
 window.addEventListener('DOMContentLoaded', function() {
-    init();
+    // 初始化功能按钮切换
+    initToggleFunctionsButton();
     
-    // 默认切换到卖家选项卡并计算亏损
-    setTimeout(() => {
-        const sellerTab = document.getElementById('sellerTab');
-        if (sellerTab) {
-            sellerTab.click();
-        }
-    }, 200);
+    // 初始化查看操作按钮切换
+    initToggleActionsButtons();
+    
+    // 尝试调用init函数，如果存在
+    if (typeof init === 'function') {
+        init();
+    }
 });
+
+// 初始化查看操作按钮切换
+function initToggleActionsButtons() {
+    // 使用事件委托来处理所有查看操作按钮的点击事件
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('view-actions-btn')) {
+            const button = event.target;
+            const actionButtons = button.nextElementSibling;
+            
+            // 切换操作按钮的显示状态
+            if (actionButtons && actionButtons.classList.contains('action-buttons')) {
+                actionButtons.classList.toggle('hidden');
+            }
+        }
+    });
+}
+
+// 初始化功能按钮切换
+function initToggleFunctionsButton() {
+    const toggleFunctionsBtn = document.getElementById('toggleFunctionsBtn');
+    const functionButtons = document.getElementById('functionButtons');
+    
+    if (toggleFunctionsBtn && functionButtons) {
+        toggleFunctionsBtn.addEventListener('click', function() {
+            functionButtons.classList.toggle('hidden');
+        });
+    }
+    
+    // 初始化导出订单按钮
+    const exportOrdersBtn = document.getElementById('exportOrdersBtn');
+    if (exportOrdersBtn) {
+        exportOrdersBtn.addEventListener('click', function() {
+            exportOrders();
+        });
+    }
+}
+
+// 导出订单功能
+function exportOrders() {
+    // 获取当前激活的选项卡
+    const currentTab = document.getElementById('buyerTab').classList.contains('text-primary');
+    
+    // 根据选项卡选择要导出的订单
+    const ordersToExport = currentTab ? buyerOrders : sellerOrders;
+    
+    // 转换为CSV格式
+    const csvContent = convertToCSV(ordersToExport, currentTab);
+    
+    // 创建下载链接
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // 设置下载文件名
+    const fileName = currentTab ? '购买订单_' + formatDate(new Date()).split(' ')[0] + '.csv' : '售卖订单_' + formatDate(new Date()).split(' ')[0] + '.csv';
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // 显示提示
+    showToast('订单导出成功！', 2000);
+}
+
+// 转换订单数据为CSV格式
+function convertToCSV(orders, isBuyerOrders) {
+    if (!orders || orders.length === 0) return '';
+    
+    let headers = '';
+    let rows = '';
+    
+    if (isBuyerOrders) {
+        // 购买订单CSV格式
+        headers = '订单号,下单时间,商品名称,数量,单价,总价,订单状态\n';
+        
+        orders.forEach(order => {
+            order.items.forEach(item => {
+                const row = [
+                    '"' + order.id + '"',
+                    '"' + order.time + '"',
+                    '"' + item.name + '"',
+                    item.quantity,
+                    item.price,
+                    order.total,
+                    '"' + order.status + '"'
+                ];
+                rows += row.join(',') + '\n';
+            });
+        });
+    } else {
+        // 售卖订单CSV格式
+        headers = '订单号,下单时间,商品名称,数量,售价,总价,订单状态\n';
+        
+        orders.forEach(order => {
+            const row = [
+                '"' + order.id + '"',
+                '"' + order.time + '"',
+                '"' + order.item.name + '"',
+                order.item.quantity,
+                order.item.price,
+                order.total,
+                '"' + order.status + '"'
+            ];
+            rows += row.join(',') + '\n';
+        });
+    }
+    
+    return headers + rows;
+}
 
 // 初始化用户下拉菜单
 function initUserDropdown() {
@@ -1332,17 +1416,9 @@ function calculateOrderStats() {
     // 计算卖家订单总额
     const sellerTotal = sellerOrders.reduce((sum, order) => sum + order.total, 0);
     
-    // 计算亏损金额（成本价 - 售价），确保order.costTotal存在
-    const totalLoss = sellerOrders.reduce((sum, order) => {
-        // 检查order.costTotal是否存在，如果不存在则默认为0
-        const costTotal = order.costTotal || 0;
-        return sum + (costTotal - order.total);
-    }, 0);
-    
     // 更新页面显示
     const buyerTotalAmount = document.getElementById('buyerTotalAmount');
     const sellerTotalAmount = document.getElementById('sellerTotalAmount');
-    const totalLossAmount = document.getElementById('totalLossAmount');
     
     if (buyerTotalAmount) {
         buyerTotalAmount.textContent = '¥' + buyerTotal.toLocaleString();
@@ -1350,10 +1426,6 @@ function calculateOrderStats() {
     
     if (sellerTotalAmount) {
         sellerTotalAmount.textContent = '¥' + sellerTotal.toLocaleString();
-    }
-    
-    if (totalLossAmount) {
-        totalLossAmount.textContent = '¥' + totalLoss.toLocaleString();
     }
 }
 
