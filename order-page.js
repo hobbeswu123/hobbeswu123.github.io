@@ -622,10 +622,11 @@ function getActionButtons(status) {
             statusButtons = '';
     }
     
-    // 将编辑和删除按钮包装在默认隐藏的div中，并添加查看操作按钮
+    // 将数据按钮设置为长按才能激活，删除订单按钮默认显示
     return `<button class="btn-outline py-1 px-3 text-xs bg-blue-50 text-blue-600 view-actions-btn">查看操作</button>
             <div class="action-buttons hidden">
-                ${editButton} ${deleteButton}
+                <div class="edit-section">${editButton}</div>
+                <div class="delete-section">${deleteButton}</div>
             </div> ${statusButtons ? ' ' + statusButtons : ''}`;
 }
 
@@ -656,10 +657,11 @@ function getSellerActionButtons(status) {
             statusButtons = '';
     }
     
-    // 将编辑和删除按钮包装在默认隐藏的div中，并添加查看操作按钮
+    // 将数据按钮设置为长按才能激活，删除订单按钮默认显示
     return `<button class="btn-outline py-1 px-3 text-xs bg-blue-50 text-blue-600 view-actions-btn">查看操作</button>
             <div class="action-buttons hidden">
-                ${editButton} ${deleteButton}
+                <div class="edit-section">${editButton}</div>
+                <div class="delete-section">${deleteButton}</div>
             </div> ${statusButtons ? ' ' + statusButtons : ''}`;
 }
 
@@ -837,8 +839,8 @@ function closeOrderDetailModal() {
     }
 }
 
-// 添加全局事件委托来处理编辑订单按钮的点击
-document.addEventListener('click', function(event) {
+// 添加全局事件委托来处理编辑订单按钮的双击
+document.addEventListener('dblclick', function(event) {
     if (event.target.classList.contains('edit-order-btn')) {
         const button = event.target;
         const orderType = button.getAttribute('data-order-type') || 'seller';
@@ -1230,6 +1232,15 @@ function initToggleActionsButtons() {
             if (actionButtons && actionButtons.classList.contains('action-buttons')) {
                 actionButtons.classList.toggle('hidden');
             }
+        }
+    });
+    
+    // 阻止数据按钮的默认单击行为，只允许双击响应
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('edit-order-btn')) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
         }
     });
 }
