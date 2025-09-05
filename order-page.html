@@ -128,22 +128,33 @@
                         </div>
                     </div>
                     <div class="flex space-x-4">
+                        <button id="addBuyerOrderBtn" class="btn-primary py-1 px-4 text-sm">
+                            <i class="fa fa-plus mr-1"></i>增加购买订单
+                        </button>
+                        <button id="addSellerOrderBtn" class="btn-primary py-1 px-4 text-sm">
+                            <i class="fa fa-plus mr-1"></i>增加卖家订单
+                        </button>
                         <button class="btn-outline py-1 px-4 text-sm">批量操作</button>
-                        <button class="btn-primary py-1 px-4 text-sm">导出订单</button>
+                        <button class="btn-outline py-1 px-4 text-sm">导出订单</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 售卖橱窗 -->
-            <div class="py-8 bg-neutral mb-8">
-                <div class="container mx-auto px-4">
-                    <div class="text-center mb-8">
-                        <h2 class="text-2xl font-bold mb-2">我的售卖橱窗</h2>
-                        <p class="text-gray-600">出售RTX 5090和RTX 4090显卡，品质保证，价格优惠</p>
+            <!-- 订单统计信息 -->
+            <div id="orderStatsContainer" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <h3 class="text-lg font-bold mb-4">订单统计</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="border rounded-lg p-4 bg-blue-50">
+                        <p class="text-gray-500 mb-1">购买订单总额</p>
+                        <p id="buyerTotalAmount" class="text-2xl font-bold text-blue-600">¥0</p>
                     </div>
-                    
-                    <div id="sellerShowcase" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- 商品卡片将通过JS动态生成 -->
+                    <div class="border rounded-lg p-4 bg-green-50">
+                        <p class="text-gray-500 mb-1">卖家订单总额</p>
+                        <p id="sellerTotalAmount" class="text-2xl font-bold text-green-600">¥0</p>
+                    </div>
+                    <div class="border rounded-lg p-4 bg-red-50">
+                        <p class="text-gray-500 mb-1">亏损金额</p>
+                        <p id="totalLossAmount" class="text-2xl font-bold text-red-600">¥0</p>
                     </div>
                 </div>
             </div>

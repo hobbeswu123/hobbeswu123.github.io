@@ -125,11 +125,72 @@
             </div>
 
             <!-- 橱窗商品列表 -->
-            <div id="sellerShowcase" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- 商品卡片将通过JS动态生成 -->
-            </div>
+        <div id="sellerShowcase" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 商品卡片将通过JS动态生成 -->
+        </div>
         </div>
     </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-microchip text-2xl text-primary"></i>
+                        <h2 class="text-xl font-bold">NVIDIA<span class="text-primary">显卡专卖</span></h2>
+                    </div>
+                    <p class="text-gray-400 mt-2 text-sm">为您提供最新、最优质的NVIDIA显卡产品</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-6 pt-6 text-center text-gray-400 text-sm">
+                <p>© 2025 NVIDIA显卡专卖店. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 返回顶部按钮 -->
+    <button id="backToTop" class="fixed bottom-8 right-8 bg-primary text-white p-3 rounded-full shadow-lg hidden">
+        <i class="fa fa-chevron-up"></i>
+    </button>
+                                    <th class="py-3 px-4 text-left">商品图片</th>
+                                    <th class="py-3 px-4 text-left">商品名称</th>
+                                    <th class="py-3 px-4 text-left">单价</th>
+                                    <th class="py-3 px-4 text-left">数量</th>
+                                    <th class="py-3 px-4 text-left">小计</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailOrderItems">
+                                <!-- 订单商品详情将通过JS动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 金额信息 -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-8">
+                    <div class="flex justify-between py-2">
+                        <span>商品金额</span>
+                        <span id="detailSubtotal">¥0</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span>运费</span>
+                        <span>¥0</span>
+                    </div>
+                    <div class="flex justify-between py-2 text-lg font-bold">
+                        <span>实付款</span>
+                        <span class="text-primary" id="detailTotal">¥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 页脚 -->
     <footer class="bg-secondary text-white py-10">
